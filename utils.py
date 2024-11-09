@@ -16,7 +16,7 @@ def get_transform():
 
 # Function to load the model from the saved file
 def load_model(file_path):
-    model = torch.load(file_path)  # Load the entire model
+    model = torch.load(file_path, map_location=device)  # Load the entire model
     model.to(device)  # Move to GPU or CPU
     model.eval()  # Set to evaluation mode
     return model
