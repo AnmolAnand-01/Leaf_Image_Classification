@@ -1,0 +1,27 @@
+.collage {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 10 images per row */
+    gap: 10px; /* Adjust spacing between images */
+    margin-top: 20px;
+}
+
+.class-item {
+    text-align: center;
+}
+
+.class-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.result img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+}

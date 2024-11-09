@@ -1,0 +1,109 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Upload an Image for Classification</h1>
+    <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    <h2>Available Classes:</h2>
+    <div class="collage">
+        {% for class_name in classes %}
+            <div class="class-item">
+                <img src="{% if class_name|replace(' ', '_') + '.jpg' in image_files %}{{ url_for('static', filename='images/' + class_name|replace(' ', '_') + '.jpg') }}{% elif class_name|replace(' ', '_') + '.jpeg' in image_files %}{{ url_for('static', filename='images/' + class_name|replace(' ', '_') + '.jpeg') }}{% endif %}" alt="{{ class_name }}">
+                <p>{{ class_name }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Upload an Image for Classification</h1>
+    
+    <form id="uploadForm" action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
+        <!-- Standard file upload -->
+        <input type="file" name="file" id="fileInput" accept="image/*">
+        
+        <!-- Camera capture button and video preview for desktop -->
+        <button type="button" onclick="startCamera()">Capture from Camera</button>
+        <video id="video" autoplay style="display:none;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        
+        <!-- Submit button for captured or uploaded image -->
+        <button type="submit">Predict</button>
+    </form>
+
+    <h2>Available Classes:</h2>
+    <div class="collage">
+        {% for class_name in classes %}
+            <div class="class-item">
+                <img src="{% if class_name|replace(' ', '_') + '.jpg' in image_files %}{{ url_for('static', filename='images/' + class_name|replace(' ', '_') + '.jpg') }}{% elif class_name|replace(' ', '_') + '.jpeg' in image_files %}{{ url_for('static', filename='images/' + class_name|replace(' ', '_') + '.jpeg') }}{% endif %}" alt="{{ class_name }}">
+                <p>{{ class_name }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Start the camera and show video preview
+        function startCamera() {
+            const video = document.getElementById('video');
+            video.style.display = 'block';
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    alert('Camera access was denied.');
+                });
+        }
+
+        // Capture an image from the video feed and submit as form data
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const fileInput = document.getElementById('fileInput');
+
+            // Only capture from video if video is active
+            if (video.srcObject) {
+                event.preventDefault(); // Prevent normal form submission
+
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas image to blob
+                canvas.toBlob(blob => {
+                    const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+
+                    // Stop video stream
+                    video.srcObject.getTracks().forEach(track => track.stop());
+
+                    // Submit form
+                    this.submit();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
